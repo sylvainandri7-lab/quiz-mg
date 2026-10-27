@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz Madagasikara</title>
+<style>
+:root{--bg:#f3efe4;--card:#fffdf7;--ink:#1d2b1f;--mute:#5d6b5f;--green:#1f7a4d;--red:#c8372d;--gold:#e8a317;--line:#d9d2bd;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14201a;--card:#1c2d24;--ink:#f1eddc;--mute:#a9b8ab;--green:#3fbf86;--red:#ff6b5e;--gold:#f2b73c;--line:#32473b;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:520px;padding:20px 18px 32px}
+h1{font-size:2.1rem;line-height:1.1;margin:8px 0 10px}
+p{line-height:1.5;color:var(--mute);font-size:1.05rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+button{font:inherit;cursor:pointer}
+.btn{display:block;width:100%;padding:15px;border:0;border-radius:12px;background:var(--green);color:#fff;font-size:1.1rem;font-weight:bold;margin-top:14px}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:.95rem;color:var(--mute);margin-bottom:10px}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+.time{font-weight:bold;color:var(--ink)}.time.low{color:var(--red)}
+.q{font-size:1.28rem;line-height:1.35;margin:0 0 16px;color:var(--ink)}
+.opt{display:block;width:100%;text-align:left;padding:14px;margin-bottom:10px;border:2px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);font-size:1.05rem}
+.opt.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 18%,transparent)}
+.opt.bad{border-color:var(--red);background:color-mix(in srgb,var(--red) 18%,transparent)}
+.opt:disabled{cursor:default}
+.score{font-size:3rem;font-weight:bold;margin:6px 0}
+.hidden{display:none}
+.cats button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:14px;margin-top:10px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:1.05rem}
+.cats small{color:var(--mute)}
+.fb{min-height:1.4em;margin:4px 0 0;font-weight:bold;color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<section id="home">
+  <h1>Quiz Madagasikara</h1>
+  <p>Fanontaniana 10 isaky ny lalao. Faingana kokoa, isa bebe kokoa. Misafidiha sokajy.</p>
+  <div class="cats" id="cats"></div>
+</section>
+<section id="play" class="hidden">
+  <div class="top"><span id="count"></span><span class="time" id="time"></span><span id="pts"></span></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="card">
+    <p class="q" id="q"></p>
+    <div id="opts"></div>
+    <p class="fb" id="fb"></p>
+    <button class="btn hidden" id="next">Manaraka</button>
+  </div>
+</section>
+<section id="end" class="hidden">
+  <div class="card">
+    <h1>Vita!</h1>
+    <div class="score" id="final"></div>
+    <p id="msg"></p>
+    <button class="btn" id="again">Lalao indray</button>
+    <button class="btn alt" id="home2">Sokajy hafa</button>
+  </div>
+</section>
+</main>
+<script>
+/* Endrika: ["fanontaniana","valiny marina","diso 1","diso 2","diso 3"] - mifangaro ho azy ny laharan’ny safidy */
+const D={
+"Jeografia":[
+["Iza no renivohitr’i Madagasikara?","Antananarivo","Toamasina","Fianarantsoa","Mahajanga"],
+["Faha-firy amin’ny nosy lehibe eran-tany i Madagasikara?","Faha-4","Faha-2","Faha-6","Faha-10"],
+["Iza no ranomasina eo atsinanan’i Madagasikara?","Ranomasina Indianina","Atlantika","Pasifika","Mediterane"],
+["Iza no lakandrano misaraka an’i Madagasikara sy Afrika?","Lakandranon’i Mozambika","Gibraltar","Bering","Malaka"],
+["Iza no tendrombohitra avo indrindra eto Madagasikara?","Maromokotro","Tsiafajavona","Pic Boby","Ambondrombe"],
+["Iza no reniranon-dava mikoriana any Mahajanga?","Betsiboka","Mangoky","Onilahy","Mananara"],
+["Antsiranana dia ao amin’ny faritra…","Avaratra","Atsimo","Afovoany","Andrefana"],
+["Toliara dia ao amin’ny faritra…","Atsimo andrefana","Avaratra","Atsinanana","Afovoany"],
+["Firy ny faritra eto Madagasikara?","22","18","6","12"],
+["Nosy Be dia any amin’ny…","Avaratra andrefana","Atsimo atsinanana","Afovoany","Atsimo andrefana"],
+["Inona no malaza amin’ny Tsingy de Bemaraha?","Vatolampy maranitra","Renirano lehibe","Lakandrano","Volkano"],
+["Iza no seranan-tsambo lehibe indrindra?","Toamasina","Mahajanga","Toliara","Antsiranana"],
+["Inona no dikan’ny hoe Antananarivo?","Tanàna arivo","Tanàna fotsy","Tanàna avo","Tanàna vaovao"],
+["Inona no vokatra ahitana an’i Madagasikara ho mpamokatra lehibe eran-tany?","Vanila","Kafe","Siramamy","Vary"],
+["Iza no seranam-piaramanidina iraisam-pirenena ao Antananarivo?","Ivato","Arivonimamo","Antsirabe","Fascène"],
+["Volana mangatsiaka indrindra eo amin’ny Afovoany?","Jolay","Janoary","Martsa","Novambra"],
+["Nosy Boraha (Sainte-Marie) dia any amin’ny…","Atsinanana","Andrefana","Atsimo","Avaratra"],
+["Aiza no hita ny Lalan’ny Baobab?","Morondava","Toamasina","Antsirabe","Fianarantsoa"],
+["Farihy Alaotra dia malaza amin’ny famokarana…","Vary","Kafe","Vanila","Lavanila"],
+["Parc National Isalo dia any amin’ny…","Atsimo","Avaratra","Atsinanana","Afovoany"]
+],
+"Kolontsaina":[
+["Inona no atao hoe Famadihana?","Famindrana ny taolam-paty razana","Fampakaram-bady","Fanasan’ny mpanjaka","Fanokafana tanimbary"],
+["Inona ny valiha?","Zavamaneno misy tady","Sakafo","Fitafiana","Fanaovana"],
+["Inona ny lamba?","Fitafiana nentim-paharazana","Zavamaniry","Hira","Fanaovana vola"],
+["Romazava dia sakafo misy…","Anana sy hena","Trondro sy katsaka","Ovy sy siramamy","Vary sy voanjo"],
+["Inona ny ravitoto?","Ravina mangahazo voatoto","Trondro","Katsaka","Voankazo"],
+["Inona ny ranovola?","Rano nampangotrahina tamin’ny vary may","Ranom-boankazo","Lasopy","Dité"],
+["Ny teny malagasy dia anisan’ny fianakaviana teny…","Aostronezianina","Bantoa","Latina","Arabo"],
+["Oviana no fetiben’ny Fahaleovantena?","26 Jona","1 Janoary","1 Mey","25 Desambra"],
+["Fety nanasan’ny mpanjaka tamin’ny fomba nentim-paharazana?","Fandroana","Alahamady","Famadihana","Sambatra"],
+["Alahamady dia fanombohan’ny…","Taom-baovao malagasy","Fotoam-pambolena","Fandroana","Fetiben’ny razana"],
+["Inona ny fady?","Zavatra voarara arakaraka ny fomban-drazana","Fanao fanaovana","Fandaharana","Fety"],
+["Inona ny kabary?","Lahateny mampiasa ohabolana","Hira","Dihy","Sakafo"],
+["Inona ny ohabolana?","Fitenenana fohy mirakitra fahendrena","Hira","Tantara maharitra","Toetr’andro"],
+["Iza ny hira nentim-pirenena malagasy?","Ry Tanindrazanay malala ô","Mifohaza","Ry Madagasikara","Tanindrazana"],
+["Inona ny koba?","Mofo vita amin’ny voanjo sy vary","Anana","Hena","Voankazo"],
+["Inona ny zavamaniry nentim-pirenena misy ravina toy ny tanana?","Ravinala","Aloe","Baobab","Ravintsara"],
+["Ny salegy dia avy any amin’ny…","Avaratra","Atsimo","Afovoany","Atsinanana"],
+["Ny tsapiky dia avy any amin’ny…","Atsimo andrefana","Avaratra","Atsinanana","Afovoany"]
+],
+"Tantara":[
+["Oviana no nahazo ny fahaleovantena i Madagasikara?","1960","1896","1975","1945"],
+["Iza no Filohan’ny Repoblika voalohany?","Philibert Tsiranana","Didier Ratsiraka","Albert Zafy","Marc Ravalomanana"],
+["Iza no mpanjaka nanambatra ny ankamaroan’ny Imerina?","Andrianampoinimerina","Radama I","Ranavalona I","Ralambo"],
+["Iza no mpanjaka nanjaka tamin’ny 1810 ka hatramin’ny 1828?","Radama I","Radama II","Rasoherina","Ranavalona I"],
+["Iza no mpanjakavavy nanjaka tamin’ny 1828 ka hatramin’ny 1861?","Ranavalona I","Ranavalona II","Rasoherina","Ranavalona III"],
+["Iza no mpanjakavavy farany nanjaka tao Madagasikara?","Ranavalona III","Rasoherina","Ranavalona I","Ranavalona II"],
+["Tamin’ny taona firy no lasa zanatany frantsay i Madagasikara?","1896","1885","1905","1920"],
+["Tamin’ny taona firy no nisy ny fikomiana lehibe ho amin’ny fahaleovantena?","1947","1929","1972","1991"],
+["Iza no nandray ny fitondrana tamin’ny 1972 taorian’i Tsiranana?","Gabriel Ramanantsoa","Didier Ratsiraka","Albert Zafy","Marc Ravalomanana"],
+["Iza no nitarika ny Repoblika Demokratika Malagasy tamin’ny 1975?","Didier Ratsiraka","Philibert Tsiranana","Albert Zafy","Hery Rajaonarimampianina"],
+["Iza no Filoha voafidy tamin’ny 1993?","Albert Zafy","Marc Ravalomanana","Andry Rajoelina","Didier Ratsiraka"],
+["Iza no nitondra ny fanjakana tamin’ny 2002 ka hatramin’ny 2009?","Marc Ravalomanana","Andry Rajoelina","Didier Ratsiraka","Albert Zafy"],
+["Iza no Filoha tamin’ny 2014?","Hery Rajaonarimampianina","Andry Rajoelina","Marc Ravalomanana","Didier Ratsiraka"],
+["Iza no tendrombohitra masina misy ny Rova voasokajy UNESCO?","Ambohimanga","Ambatomanga","Ankaratra","Tsiafajavona"],
+["Tamin’ny taona firy no may ny Rova Manjakamiadana?","1995","1985","2001","1972"],
+["Iza no mpanjaka nizara ny Imerina ho efatra?","Andriamasinavalona","Andrianampoinimerina","Radama I","Ralambo"],
+["Iza no foko nanorina ny fanjakan’i Menabe sy Boina?","Sakalava","Betsileo","Antandroy","Tanala"],
+["Firy ny foko ofisialy eto Madagasikara?","18","12","20","22"],
+["Iza no Praiminisitra nanambady mpanjakavavy telo?","Rainilaiarivony","Rabodo","Rainivoninahitriniony","Rasoherina"],
+["Iza no mpanjakavavy nanaraka an’i Radama II?","Rasoherina","Ranavalona I","Ranavalona II","Ranavalona III"]
+],
+"Fahalalana ankapobeny":[
+["Iza no renivohitr’i Frantsa?","Paris","Lyon","Marseille","Nice"],
+["Iza no kaontinanta lehibe indrindra?","Azia","Afrika","Amerika","Eoropa"],
+["Iza no planeta akaiky indrindra ny Masoandro?","Merkiora","Venosy","Tany","Marsa"],
+["Firy ny andro ao anatin’ny herinandro?","7","5","6","8"],
+["Inona ny fantsona simika ny H₂O?","Rano","Oksizenina","Hidrozenina","Sira"],
+["Iza no ranomasina lehibe indrindra?","Pasifika","Atlantika","Indianina","Arktika"],
+["Firy ny taona ao anatin’ny taonjato?","100","10","50","1000"],
+["Inona no gazy ilain’ny olombelona hifohana?","Oksizenina","Azota","Hidrozenina","Hélium"],
+["5 × 8 = ?","40","35","45","48"],
+["Inona no taova mamafy ra?","Fo","Havokavoka","Atiny","Voa"],
+["Iza no fiteny ofisialy any Brezila?","Portiogey","Espaniola","Anglisy","Frantsay"],
+["Firy ny planeta ao amin’ny rafi-masoandro?","8","7","9","10"],
+["Iza no nanome ny telefaonina?","Alexander Graham Bell","Thomas Edison","Nikola Tesla","Marconi"],
+["Inona no fizotran’ny zavamaniry mamokatra oksizenina?","Fotosintezy","Fandevonana","Fisefoana","Fanalana"],
+["Iza no tampon’ny tany avo indrindra?","Everest","K2","Kilimanjaro","Mont Blanc"],
+["Iza no lehilahy voalohany nandeha tamin’ny Volana?","Neil Armstrong","Yuri Gagarin","Buzz Aldrin","John Glenn"],
+["Iza no firenena lehibe indrindra amin’ny velarana?","Rosia","Kanada","Shina","Etazonia"],
+["Firy ny ora ao anatin’ny iray andro?","24","12","20","36"],
+["Inona no loharanon’ny hazavana lehibe indrindra ho an’ny Tany?","Masoandro","Volana","Kintana","Afo"],
+["100 ÷ 4 = ?","25","20","24","40"],
+["Inona no dikan’ny HTML?","HyperText Markup Language","High Text Machine Language","Hyper Tool Mobile Link","Home Tool Markup Language"],
+["Iza no nanorina ny Microsoft?","Bill Gates","Steve Jobs","Mark Zuckerberg","Elon Musk"]
+],
+"Fanatanjahantena":[
+["Firy ny mpilalao eo an-kianja isaky ny ekipa baolina kitra?","11","9","13","15"],
+["Iza no nandresy ny Kapa Eran-tany baolina kitra 2022?","Arzantina","Frantsa","Brezila","Alemaina"],
+["Iza no nandresy ny Kapa Eran-tany baolina kitra 2018?","Frantsa","Kroasia","Brezila","Alemaina"],
+["Aiza no nanaovana ny Lalao Olympika 2024?","Paris","Tokyo","Londres","Los Angeles"],
+["Isaky ny firy taona no atao ny Lalao Olympika?","4","2","3","5"],
+["Inona no fanatanjahan-batana nentim-paharazana malagasy?","Moraingy","Sumo","Judo","Kendo"],
+["Firy ny mpilalao eo an-kianja isaky ny ekipa basikety?","5","6","7","11"],
+["Firy ny mpilalao eo an-kianja isaky ny ekipa rugby?","15","11","13","9"],
+["Aiza no atao ny Roland-Garros?","Paris","Londres","New York","Melbourne"],
+["Aiza no atao ny Wimbledon?","Londres","Paris","New York","Melbourne"],
+["Usain Bolt dia avy any…","Jamaika","Etazonia","Kenya","Afrika Atsimo"],
+["Lionel Messi dia avy any…","Arzantina","Brezila","Espaina","Portiogaly"],
+["Cristiano Ronaldo dia avy any…","Portiogaly","Espaina","Brezila","Italia"],
+["Firy ny minitra amin’ny lalao baolina kitra mahazatra?","90","60","80","120"],
+["Pelé dia avy any…","Brezila","Arzantina","Mexika","Kolombia"],
+["Firy ny kilaometatra amin’ny marathon?","42","21","30","50"],
+["Michael Jordan dia mpilalao…","Basikety","Baolina kitra","Tennis","Baseball"],
+["Inona no fanatanjahantena avy any Japon?","Judo","Boxing","Taekwondo","Lutte"],
+["Inona no anaran-tsoratry ny ekipam-pirenena baolina kitra malagasy?","Barea","Fosa","Akoholahy","Omby"],
+["Tamin’ny CAN 2019 ny Barea dia tonga hatramin’ny…","Quarts de finale","Finale","Demi-finale","Tsy nandalo ny vondrona"],
+["Roger Federer dia avy any…","Soisa","Espaina","Serbia","Alemaina"],
+["Iza no mpilomano nahazo medaly Olympika betsaka indrindra?","Michael Phelps","Mark Spitz","Ian Thorpe","Ryan Lochte"]
+]
+};
+const ALL="Fangaro rehetra", ROUND=10, SEC=15;
+const $=id=>document.getElementById(id);
+let list,i,score,timer,left,locked,cur;
+
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;}
+function best(n){try{return +localStorage.getItem("qmg:"+n)||0}catch(e){return 0}}
+function saveBest(n,v){try{localStorage.setItem("qmg:"+n,v)}catch(e){}}
+function show(id){["home","play","end"].forEach(s=>$(s).classList.toggle("hidden",s!==id));}
+
+function home(){
+  $("cats").innerHTML="";
+  [ALL,...Object.keys(D)].forEach(n=>{
+    const total=n===ALL?Object.values(D).reduce((s,a)=>s+a.length,0):D[n].length;
+    const b=document.createElement("button");
+    b.innerHTML="<span>"+n+"</span><small>"+total+" fanontaniana · tsara indrindra: "+best(n)+"</small>";
+    b.onclick=()=>start(n);
+    $("cats").appendChild(b);
+  });
+  show("home");
+}
+
+function start(n){
+  cur=n;
+  const pool=n===ALL?Object.values(D).flat():D[n];
+  list=shuffle(pool).slice(0,ROUND).map(a=>({q:a[0],ok:a[1],o:shuffle(a.slice(1))}));
+  i=0;score=0;show("play");ask();
+}
+
+function ask(){
+  const it=list[i];locked=false;
+  $("count").textContent=(i+1)+" / "+list.length;
+  $("pts").textContent="Isa: "+score;
+  $("bar").style.width=(i/list.length*100)+"%";
+  $("q").textContent=it.q;$("fb").textContent="";$("next").classList.add("hidden");
+  $("opts").innerHTML="";
+  it.o.forEach(t=>{const b=document.createElement("button");b.className="opt";b.textContent=t;b.onclick=()=>answer(t);$("opts").appendChild(b);});
+  left=SEC;tick();clearInterval(timer);
+  timer=setInterval(()=>{left--;tick();if(left<=0)answer(null);},1000);
+}
+function tick(){$("time").textContent=left+" s";$("time").classList.toggle("low",left<=5);}
+
+function answer(t){
+  if(locked)return;locked=true;clearInterval(timer);
+  const it=list[i];
+  [...$("opts").children].forEach(b=>{b.disabled=true;if(b.textContent===it.ok)b.classList.add("ok");else if(b.textContent===t)b.classList.add("bad");});
+  if(t===it.ok){const g=10+left;score+=g;$("fb").textContent="Marina! +"+g;}
+  else $("fb").textContent=(t===null?"Lany ny fotoana. ":"Diso. ")+"Ny valiny: "+it.ok;
+  $("pts").textContent="Isa: "+score;
+  $("next").textContent=i===list.length-1?"Hijery ny isa":"Manaraka";
+  $("next").classList.remove("hidden");$("next").focus();
+}
+$("next").onclick=()=>{i++;i<list.length?ask():finish();};
+
+function finish(){
+  show("end");
+  const old=best(cur);
+  $("final").textContent=score+" isa";
+  let m=score>=old&&score>0?"Rekoa vaovao! ":"Tsara indrindra: "+old+". ";
+  if(score>old)saveBest(cur,score);
+  const r=score/(ROUND*25);
+  m+=r>.7?"Mahay be ianao!":r>.4?"Tsara, mbola afaka mandroso.":"Aza kivy, andramo indray.";
+  $("msg").textContent=m;
+}
+$("again").onclick=()=>start(cur);
+$("home2").onclick=home;
+home();
+</script>
+</body>
+</html>
