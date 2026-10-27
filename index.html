@@ -32,16 +32,52 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .cats button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:14px;margin-top:10px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:1.05rem}
 .cats small{color:var(--mute)}
 .fb{min-height:1.4em;margin:4px 0 0;font-weight:bold;color:var(--ink)}
+.card{box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.bar i{background:linear-gradient(90deg,var(--gold),var(--green))}
+.opt{transition:transform .1s,border-color .15s}.opt:active:not(:disabled){transform:scale(.98)}
+.hero{border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#12283f 0%,#33505e 38%,#d4742f 78%,#f2b73c 100%);color:#fff}
+.hero .txt{padding:30px 22px 0}
+.hero h1{font-size:2.7rem;margin:0 0 10px;color:#fff;letter-spacing:-.5px}
+.hero p{color:#ffe9c4;margin:0;font-size:1.1rem}
+.baobab{display:block;width:100%;height:auto;margin-top:-4px}
+.ground{background:#0f2418;padding:4px 22px 24px;color:#e8e2cc}
+.stats{display:flex;gap:20px;margin:0 0 18px;font-size:.9rem}
+.stats b{display:block;font-size:1.5rem;color:var(--gold)}
+.go{background:var(--gold);color:#1d2b1f;margin-top:0}
+.back{background:none;border:0;color:var(--mute);font-size:1rem;padding:6px 0;margin-bottom:4px}
+.cats button{align-items:center;justify-content:flex-start;gap:14px;border-left:6px solid var(--c,var(--green));box-shadow:0 3px 12px rgba(0,0,0,.06)}
+.cats button:active{transform:scale(.98)}
+.cats i{font-style:normal;font-size:1.6rem;width:46px;height:46px;flex:none;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--c,var(--green)) 22%,transparent)}
+.cats span{display:flex;flex-direction:column}
+.cats b{font-size:1.1rem}
+.row{display:flex;justify-content:space-between;align-items:center}
+.row .back{color:var(--ink);font-weight:bold}
 </style>
 </head>
 <body>
 <main>
 <section id="home">
-  <h1>Quiz Madagasikara</h1>
-  <p>Fanontaniana 10 isaky ny lalao. Faingana kokoa, isa bebe kokoa. Misafidiha sokajy.</p>
+  <div class="hero">
+    <div class="txt"><h1>Quiz Madagasikara</h1><p>Tsapao ny fahalalanao ny tanindrazanao.</p></div>
+    <svg class="baobab" viewBox="0 0 400 230" aria-hidden="true">
+      <circle cx="290" cy="118" r="38" fill="#ffd77a"/>
+      <defs><g id="bb"><path d="M70 210C82 186 88 156 90 118L114 118C116 156 122 186 134 210Z"/><path d="M102 120L58 98M102 120L80 86M102 120L102 78M102 120L124 86M102 120L146 98" stroke="#0f2418" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="56" cy="96" rx="16" ry="8"/><ellipse cx="78" cy="82" rx="16" ry="8"/><ellipse cx="102" cy="74" rx="16" ry="8"/><ellipse cx="126" cy="82" rx="16" ry="8"/><ellipse cx="148" cy="96" rx="16" ry="8"/></g></defs>
+      <g fill="#0f2418"><use href="#bb" transform="translate(-30 0)"/><use href="#bb" transform="translate(250 70) scale(.65)"/><path d="M0 230V208C80 202 150 212 220 208C300 204 360 210 400 206V230Z"/></g>
+    </svg>
+    <div class="ground">
+      <div class="stats"><div><b>102</b>fanontaniana</div><div><b>5</b>sokajy</div><div><b>15 s</b>isaky ny fanontaniana</div></div>
+      <button class="btn go" id="go">Hanomboka</button>
+    </div>
+  </div>
+</section>
+<section id="menu" class="hidden">
+  <button class="back" id="back">‹ Hiverina</button>
+  <h1>Misafidiha sokajy</h1>
+  <p>Fanontaniana 10 isaky ny lalao. Faingana kokoa, isa bebe kokoa.</p>
   <div class="cats" id="cats"></div>
 </section>
 <section id="play" class="hidden">
+  <div class="row"><button class="back" id="quit">‹ Sokajy hafa</button><button class="back" id="snd" aria-label="Feo">🔊</button></div>
   <div class="top"><span id="count"></span><span class="time" id="time"></span><span id="pts"></span></div>
   <div class="bar"><i id="bar"></i></div>
   <div class="card">
@@ -178,24 +214,30 @@ const D={
 ]
 };
 const ALL="Fangaro rehetra", ROUND=10, SEC=15;
+const OK=["Marina!","Tsara!","Tena tsara!","Tena marina!","Tsara be!","Mahay ianao!"],KO=["Diso","Tsy marina","Tsy izany","Mbola tsy marina"];
+let sound=true,voice=null;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function pickVoice(){if(!window.speechSynthesis)return;const v=speechSynthesis.getVoices();voice=v.find(x=>/^mg/i.test(x.lang))||v.find(x=>/^id/i.test(x.lang))||v.find(x=>/^fr/i.test(x.lang))||null;}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(t){if(!sound||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 const $=id=>document.getElementById(id);
 let list,i,score,timer,left,locked,cur;
 
 function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;}
 function best(n){try{return +localStorage.getItem("qmg:"+n)||0}catch(e){return 0}}
 function saveBest(n,v){try{localStorage.setItem("qmg:"+n,v)}catch(e){}}
-function show(id){["home","play","end"].forEach(s=>$(s).classList.toggle("hidden",s!==id));}
+function show(id){["home","menu","play","end"].forEach(s=>$(s).classList.toggle("hidden",s!==id));}
 
-function home(){
+const C={"Fangaro rehetra":["🎲","#e8a317"],"Jeografia":["🗺️","#1f7a4d"],"Kolontsaina":["🥁","#c8372d"],"Tantara":["👑","#8a5cc2"],"Fahalalana ankapobeny":["💡","#2a7fc1"],"Fanatanjahantena":["⚽","#d4742f"]};
+function build(){
   $("cats").innerHTML="";
   [ALL,...Object.keys(D)].forEach(n=>{
     const total=n===ALL?Object.values(D).reduce((s,a)=>s+a.length,0):D[n].length;
     const b=document.createElement("button");
-    b.innerHTML="<span>"+n+"</span><small>"+total+" fanontaniana · tsara indrindra: "+best(n)+"</small>";
+    b.style.setProperty("--c",C[n][1]);b.innerHTML="<i>"+C[n][0]+"</i><span><b>"+n+"</b><small>"+total+" fanontaniana · tsara indrindra: "+best(n)+"</small></span>";
     b.onclick=()=>start(n);
     $("cats").appendChild(b);
   });
-  show("home");
 }
 
 function start(n){
@@ -222,8 +264,8 @@ function answer(t){
   if(locked)return;locked=true;clearInterval(timer);
   const it=list[i];
   [...$("opts").children].forEach(b=>{b.disabled=true;if(b.textContent===it.ok)b.classList.add("ok");else if(b.textContent===t)b.classList.add("bad");});
-  if(t===it.ok){const g=10+left;score+=g;$("fb").textContent="Marina! +"+g;}
-  else $("fb").textContent=(t===null?"Lany ny fotoana. ":"Diso. ")+"Ny valiny: "+it.ok;
+  if(t===it.ok){const g=10+left,w=pick(OK);score+=g;$("fb").textContent=w+" +"+g;say(w);}
+  else{const w=t===null?"Lany ny fotoana":pick(KO);$("fb").textContent=w+". Ny valiny: "+it.ok;say(w);}
   $("pts").textContent="Isa: "+score;
   $("next").textContent=i===list.length-1?"Hijery ny isa":"Manaraka";
   $("next").classList.remove("hidden");$("next").focus();
@@ -238,11 +280,15 @@ function finish(){
   if(score>old)saveBest(cur,score);
   const r=score/(ROUND*25);
   m+=r>.7?"Mahay be ianao!":r>.4?"Tsara, mbola afaka mandroso.":"Aza kivy, andramo indray.";
-  $("msg").textContent=m;
+  $("msg").textContent=m;say(r>.7?"Mahay be ianao!":r>.4?"Tsara, mbola afaka mandroso":"Aza kivy, andramo indray");
 }
 $("again").onclick=()=>start(cur);
-$("home2").onclick=home;
-home();
+$("home2").onclick=()=>{build();show("menu");};
+$("go").onclick=()=>{build();show("menu");};
+$("back").onclick=()=>show("home");
+$("quit").onclick=()=>{clearInterval(timer);if(window.speechSynthesis)speechSynthesis.cancel();build();show("menu");};
+$("snd").onclick=()=>{sound=!sound;$("snd").textContent=sound?"🔊":"🔇";if(!sound&&window.speechSynthesis)speechSynthesis.cancel();};
+show("home");
 </script>
 </body>
 </html>
