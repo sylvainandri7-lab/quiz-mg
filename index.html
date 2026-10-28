@@ -52,9 +52,16 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .cats b{font-size:1.1rem}
 .row{display:flex;justify-content:space-between;align-items:center}
 .row .back{color:var(--ink);font-weight:bold}
+:root[data-theme="dark"]{--bg:#14201a;--card:#1c2d24;--ink:#f1eddc;--mute:#a9b8ab;--green:#3fbf86;--red:#ff6b5e;--gold:#f2b73c;--line:#32473b;color-scheme:dark}
+.theme{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:5;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.2rem;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.playing .theme{display:none}
+.hero .txt{padding-right:62px}
+@media (max-width:380px){.hero h1{font-size:2.1rem}.stats{gap:12px}.q{font-size:1.15rem}.opt{padding:12px;font-size:1rem}}
+@media (min-width:700px){main{max-width:760px;padding-top:36px}.cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cats button{margin-top:0}.hero h1{font-size:3.5rem}.q{font-size:1.5rem}.opt{font-size:1.15rem}}
 </style>
 </head>
 <body>
+<button class="theme" id="theme" aria-label="Loko maizina na mazava">🌙</button>
 <main>
 <section id="home">
   <div class="hero">
@@ -65,7 +72,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
       <g fill="#0f2418"><use href="#bb" transform="translate(-30 0)"/><use href="#bb" transform="translate(250 70) scale(.65)"/><path d="M0 230V208C80 202 150 212 220 208C300 204 360 210 400 206V230Z"/></g>
     </svg>
     <div class="ground">
-      <div class="stats"><div><b>102</b>fanontaniana</div><div><b>5</b>sokajy</div><div><b>15 s</b>isaky ny fanontaniana</div></div>
+      <div class="stats"><div><b id="nq">0</b>fanontaniana</div><div><b id="nc">0</b>sokajy</div><div><b>15 s</b>isaky ny fanontaniana</div></div>
       <button class="btn go" id="go">Hanomboka</button>
     </div>
   </div>
@@ -210,25 +217,133 @@ const D={
 ["Inona no anaran-tsoratry ny ekipam-pirenena baolina kitra malagasy?","Barea","Fosa","Akoholahy","Omby"],
 ["Tamin’ny CAN 2019 ny Barea dia tonga hatramin’ny…","Quarts de finale","Finale","Demi-finale","Tsy nandalo ny vondrona"],
 ["Roger Federer dia avy any…","Soisa","Espaina","Serbia","Alemaina"],
-["Iza no mpilomano nahazo medaly Olympika betsaka indrindra?","Michael Phelps","Mark Spitz","Ian Thorpe","Ryan Lochte"]
+["Iza no mpilomano nahazo medaly Olympika betsaka indrindra?","Michael Phelps","Mark Spitz","Ian Thorpe","Ryan Lochte"]],
+"Mozika":[
+["Iza no antsoina hoe Mpanjakan’ny salegy?","Jaojoby","Rossy","Mama Sana","Njakatiana"],
+["Inona ny sodina?","Zavamaneno fofonaina","Zavamaneno misy tady","Zavamaneno kapohina","Fitafiana"],
+["Iza no namorona ny mozikan’ny hira nasionaly malagasy?","Norbert Raharisoa","Pasteur Rahajason","Rossy","Jaojoby"],
+["Inona ny hira gasy?","Fampisehoana hira, kabary ary dihy","Sakafo","Lalao baolina","Fanaovana"],
+["Ny reggae dia mozika avy any…","Jamaika","Brezila","Kiba","Afrika Atsimo"],
+["Ny samba dia mozika avy any…","Brezila","Meksika","Kiba","Italia"],
+["Ny tango dia mozika avy any…","Arzantina","Espaina","Brezila","Frantsa"],
+["Firy ny tady mahazatra amin’ny gitara klasika?","6","4","5","8"],
+["Firy ny note fototra (do, ré, mi…) ao amin’ny gamme?","7","5","8","12"],
+["Iza no mpihira nanao ny ‘Thriller’?","Michael Jackson","Prince","Elvis Presley","Bob Marley"],
+["Iza no mpihira reggae malaza avy any Jamaika?","Bob Marley","Elvis Presley","Bob Dylan","Prince"],
+["Beethoven dia mpamoron-kira avy any…","Alemaina","Frantsa","Italia","Rosia"],
+["Mozart dia teraka tany…","Aotrisy","Alemaina","Italia","Frantsa"],
+["Iza no mpihira frantsay nanao ny ‘La Vie en Rose’?","Édith Piaf","Céline Dion","Dalida","Adele"],
+["Inona ny marovany?","Zavamaneno misy tady vita amin’ny boaty","Sakafo","Hira","Dihy"],
+["Inona no feo ambany indrindra amin’ny lehilahy?","Basse","Ténor","Alto","Soprano"],
+["Firy ny kanalahidy fototra amin’ny octave ao amin’ny piano (fotsy)?","7","5","8","12"],
+["Iza no antsoina hoe ‘Mpanjakan’ny rock’n’roll’?","Elvis Presley","Michael Jackson","Bob Marley","Prince"]
+],
+"Sakafo malagasy":[
+["Inona no vokatra fototry ny sakafo malagasy?","Vary","Tritika","Katsaka","Ovy"],
+["Ny ravitoto dia matetika atao miaraka amin’ny…","Henakisoa","Trondro","Atody","Voankazo"],
+["Inona ny lasary?","Anana sy legioma voasoloka","Mofo","Hena","Dité"],
+["Ny mofo gasy dia vita amin’ny…","Lafarinin’ny vary","Tritika","Mangahazo","Katsaka"],
+["Ny mokary dia mofo misy…","Voanio","Atody sy dité","Hena","Trondro"],
+["Inona ny kitoza?","Hena maina voahidy","Trondro","Akoho","Voankazo"],
+["Inona no atao hoe sakamalao amin’ny frantsay?","Gingembre","Ail","Oignon","Poivre"],
+["Henakisoa dia hena…","Kisoa","Omby","Akoho","Ondry"],
+["Henomby dia hena…","Omby","Kisoa","Akoho","Ondry"],
+["Ny jirofo dia vokatra malaza avy any amin’ny…","Atsinanana","Andrefana","Atsimo","Afovoany"],
+["Ny faritra SAVA dia malaza amin’ny…","Vanila","Kafe","Vary","Siramamy"],
+["Inona no voankazo malaza avy any Toamasina ho an’ny fanondranana?","Letsy","Paoma","Voasary","Manga"],
+["Inona no atao hoe mangahazo amin’ny frantsay?","Manioc","Patate","Igname","Riz"],
+["Inona no atao hoe vary amin’ny frantsay?","Riz","Maïs","Blé","Pain"],
+["Inona no atao hoe voatabia amin’ny frantsay?","Tomate","Carotte","Concombre","Poivron"],
+["Inona no atao hoe sira amin’ny frantsay?","Sel","Sucre","Poivre","Huile"]
+],
+"Lahatsary sy filma":[
+["Iza no mpilalao an’i Iron Man ao amin’ny Marvel?","Robert Downey Jr.","Chris Evans","Chris Hemsworth","Mark Ruffalo"],
+["Iza no mpanoratra ny Harry Potter?","J.K. Rowling","Tolkien","Stephen King","Roald Dahl"],
+["Iza no zanak’i Mufasa ao amin’ny ‘The Lion King’?","Simba","Scar","Timon","Rafiki"],
+["Ao amin’ny filma ‘Madagascar’, iza no anaran’ilay liona?","Alex","Marty","Melman","Gloria"],
+["Iza no tompon’andraikitra (réalisateur) an’ny ‘Titanic’?","James Cameron","Steven Spielberg","Christopher Nolan","Ridley Scott"],
+["Iza no mpilalao Jack Sparrow ao amin’ny ‘Pirates of the Caribbean’?","Johnny Depp","Brad Pitt","Tom Cruise","Orlando Bloom"],
+["Iza no mpanoratra ‘Le Petit Prince’?","Antoine de Saint-Exupéry","Victor Hugo","Molière","Albert Camus"],
+["Taona firy no nanomboka ny YouTube?","2005","2000","2010","2015"],
+["Ny TikTok dia orinasa avy any…","Shina","Etazonia","Japon","Korea Atsimo"],
+["Iza no nanorina ny Facebook?","Mark Zuckerberg","Bill Gates","Elon Musk","Steve Jobs"],
+["Iza no mpilalao Spider-Man tamin’ny filma 2002?","Tobey Maguire","Andrew Garfield","Tom Holland","Brad Pitt"],
+["Ny anime ‘Naruto’ dia avy any…","Japon","Korea","Shina","Etazonia"],
+["Iza no mpilalao kung-fu antsoina hoe ‘Little Dragon’?","Bruce Lee","Jackie Chan","Jet Li","Chuck Norris"],
+["Iza no mpanjakavavy manana hery ranomandry ao amin’ny ‘Frozen’?","Elsa","Anna","Moana","Ariel"],
+["Inona no tanàna misy an’i Batman?","Gotham","Metropolis","Wakanda","Atlantis"],
+["Wakanda dia tanàna ao amin’ny filma…","Black Panther","Thor","Hulk","Iron Man"],
+["Iza no namorona an’i Mickey Mouse?","Walt Disney","Pixar","Hanna-Barbera","Tezuka"],
+["Netflix dia orinasa avy any…","Etazonia","Frantsa","Japon","Angletera"]
+],
+"Siansa":[
+["Iza no planeta lehibe indrindra?","Jupiter","Saturne","Tany","Neptune"],
+["Ohatrinona ny faritry ny Tany voasarona rano?","Manodidina ny 71%","Manodidina ny 30%","50%","90%"],
+["Inona no gazy ampiasain’ny zavamaniry amin’ny fotosintezy?","Gazy karbônika","Oksizenina","Azota","Hélium"],
+["Firy ny taolan’ny olon-dehibe?","206","150","300","106"],
+["Iza no taova lehibe indrindra amin’ny vatana?","Hoditra","Atiny","Havokavoka","Fo"],
+["Amin’ny hafanana firy no mangotraka ny rano?","100 °C","50 °C","90 °C","150 °C"],
+["Amin’ny hafanana firy no ho ranomandry ny rano?","0 °C","10 °C","–10 °C","4 °C"],
+["Inona ny soratra simika ny volamena?","Au","Ag","Fe","Go"],
+["Inona ny soratra simika ny vy?","Fe","Va","Ir","F"],
+["Iza no nahita ny lalàna momba ny hery misintona?","Isaac Newton","Albert Einstein","Galileo","Charles Darwin"],
+["Ohatrinona ny hafainganan’ny hazavana?","300 000 km/s","3 000 km/s","30 000 km/s","1 000 000 km/s"],
+["Inona no mahatonga ny andro sy ny alina?","Fihodinan’ny Tany manodidina ny tenany","Fihodinan’ny Volana","Rivotra","Rahona"],
+["Firy ny volana voajanahary ny Tany?","1","2","0","4"],
+["Inona no ao anaty ra mitondra oksizenina?","Hemoglobine","Insulina","Kalsioma","Siramamy"],
+["Iza no biby lehibe indrindra eto an-tany?","Trozona manga","Elefanta","Rhinoceros","Fony"],
+["Aiza no hany toerana ahitana lemur voajanahary?","Madagasikara","Brezila","Aostralia","Indonezia"],
+["Ny fosa dia biby…","Mpihinana hena","Vorona","Bibikely","Zavamaniry"],
+["Ny baobab dia mitahiry ao amin’ny vodiny…","Rano","Siramamy","Solika","Vy"],
+["Inona ny DNA?","Fitaovana mitahiry ny fototarazo","Karazana hery","Siramamy","Hazavana"],
+["Inona no gazy betsaka indrindra ao amin’ny rivotra?","Azota","Oksizenina","Gazy karbônika","Hidrozenina"]
+],
+"Frantsay sy Anglisy":[
+["Inona no atao hoe ‘Bonjour’ amin’ny malagasy?","Manao ahoana","Veloma","Misaotra","Azafady"],
+["Inona no atao hoe ‘Merci’ amin’ny malagasy?","Misaotra","Veloma","Azafady","Tsara"],
+["Inona no atao hoe ‘Au revoir’ amin’ny malagasy?","Veloma","Salama","Misaotra","Azafady"],
+["Inona no dikan’ny ‘Please’ amin’ny malagasy?","Azafady","Misaotra","Veloma","Tsara"],
+["Inona ny dikan’ny ‘Water’ amin’ny malagasy?","Rano","Afo","Tany","Rivotra"],
+["Inona ny dikan’ny ‘chat’ amin’ny frantsay?","Saka","Alika","Akoho","Omby"],
+["Inona ny dikan’ny ‘chien’ amin’ny frantsay?","Alika","Saka","Omby","Ondry"],
+["Inona ny dikan’ny ‘maison’ amin’ny frantsay?","Trano","Tanàna","Lalana","Tsena"],
+["Inona ny dikan’ny ‘livre’ amin’ny frantsay?","Boky","Penina","Latabatra","Fiara"],
+["Inona ny dikan’ny ‘pain’ amin’ny frantsay?","Mofo","Vary","Hena","Rano"],
+["Inona ny dikan’ny ‘rouge’ amin’ny frantsay?","Mena","Maitso","Manga","Fotsy"],
+["Inona ny dikan’ny ‘Merci beaucoup’?","Misaotra betsaka","Veloma","Azafady","Tsara be"],
+["Ahoana no lazaina hoe ‘Izaho tia anao’ amin’ny frantsay?","Je t’aime","Je suis","Tu es","Au revoir"],
+["Firy ny litera ao amin’ny abidia frantsay?","26","24","28","30"],
+["Inona ny dikan’ny ‘Apple’ amin’ny malagasy?","Paoma","Voasary","Akondro","Manga"],
+["Inona ny dikan’ny ‘Good morning’?","Arahaba maraina","Arahaba hariva","Veloma","Misaotra"],
+["Inona ny dikan’ny ‘Sun’ amin’ny malagasy?","Masoandro","Volana","Kintana","Rivotra"],
+["Inona ny dikan’ny ‘Moon’ amin’ny malagasy?","Volana","Masoandro","Kintana","Rivotra"],
+["Inona ny dikan’ny ‘Friend’ amin’ny malagasy?","Namana","Rahalahy","Ray","Ankizy"],
+["Inona ny dikan’ny ‘Book’ amin’ny malagasy?","Boky","Penina","Latabatra","Fiara"]
 ]
 };
 const ALL="Fangaro rehetra", ROUND=10, SEC=15;
+const $=id=>document.getElementById(id);
 const OK=["Marina!","Tsara!","Tena tsara!","Tena marina!","Tsara be!","Mahay ianao!"],KO=["Diso","Tsy marina","Tsy izany","Mbola tsy marina"];
 let sound=true,voice=null;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
+$("nq").textContent=Object.values(D).reduce((s,a)=>s+a.length,0);$("nc").textContent=Object.keys(D).length;
+const mq=window.matchMedia("(prefers-color-scheme: dark)");
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==="dark":mq.matches}
+function paint(){$("theme").textContent=isDark()?"☀️":"🌙"}
+try{const t=localStorage.getItem("qmg:theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
+paint();
+$("theme").onclick=()=>{const t=isDark()?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("qmg:theme",t)}catch(e){}paint()};
 function pickVoice(){if(!window.speechSynthesis)return;const v=speechSynthesis.getVoices();voice=v.find(x=>/^mg/i.test(x.lang))||v.find(x=>/^id/i.test(x.lang))||v.find(x=>/^fr/i.test(x.lang))||null;}
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
 function say(t){if(!sound||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
-const $=id=>document.getElementById(id);
 let list,i,score,timer,left,locked,cur;
 
 function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;}
 function best(n){try{return +localStorage.getItem("qmg:"+n)||0}catch(e){return 0}}
 function saveBest(n,v){try{localStorage.setItem("qmg:"+n,v)}catch(e){}}
-function show(id){["home","menu","play","end"].forEach(s=>$(s).classList.toggle("hidden",s!==id));}
+function show(id){document.body.classList.toggle("playing",id==="play");["home","menu","play","end"].forEach(s=>$(s).classList.toggle("hidden",s!==id));}
 
-const C={"Fangaro rehetra":["🎲","#e8a317"],"Jeografia":["🗺️","#1f7a4d"],"Kolontsaina":["🥁","#c8372d"],"Tantara":["👑","#8a5cc2"],"Fahalalana ankapobeny":["💡","#2a7fc1"],"Fanatanjahantena":["⚽","#d4742f"]};
+const C={"Fangaro rehetra":["🎲","#e8a317"],"Jeografia":["🗺️","#1f7a4d"],"Kolontsaina":["🥁","#c8372d"],"Tantara":["👑","#8a5cc2"],"Fahalalana ankapobeny":["💡","#2a7fc1"],"Fanatanjahantena":["⚽","#d4742f"],"Mozika":["🎵","#d6336c"],"Sakafo malagasy":["🍲","#e67e22"],"Lahatsary sy filma":["🎬","#6f42c1"],"Siansa":["🔬","#0b8a8f"],"Frantsay sy Anglisy":["🔤","#3b5bdb"]};
 function build(){
   $("cats").innerHTML="";
   [ALL,...Object.keys(D)].forEach(n=>{
